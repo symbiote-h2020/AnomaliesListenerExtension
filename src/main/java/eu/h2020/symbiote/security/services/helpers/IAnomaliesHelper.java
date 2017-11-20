@@ -1,5 +1,6 @@
 package eu.h2020.symbiote.security.services.helpers;
 
+import eu.h2020.symbiote.security.commons.enums.AnomalyDetectionVerbosityLevel;
 import eu.h2020.symbiote.security.commons.enums.EventType;
 import eu.h2020.symbiote.security.communication.payloads.HandleAnomalyRequest;
 
@@ -26,4 +27,13 @@ public interface IAnomaliesHelper {
      * @return true if user is blocked for specified event type
      */
     Boolean isBlocked(String username, EventType eventType);
+
+    /**
+     * Returns verbosity level of anomaly detection
+     *
+     * @return verbosity level
+     */
+    AnomalyDetectionVerbosityLevel getVerbosityLevel();
+
+
 }

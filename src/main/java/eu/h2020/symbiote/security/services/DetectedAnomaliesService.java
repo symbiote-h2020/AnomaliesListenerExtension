@@ -2,6 +2,7 @@
 package eu.h2020.symbiote.security.services;
 
 import com.sun.org.apache.xpath.internal.operations.Bool;
+import eu.h2020.symbiote.security.commons.enums.AnomalyDetectionVerbosityLevel;
 import eu.h2020.symbiote.security.commons.enums.EventType;
 import eu.h2020.symbiote.security.communication.payloads.HandleAnomalyRequest;
 import eu.h2020.symbiote.security.repositories.BlockedActionsRepository;
@@ -10,6 +11,8 @@ import eu.h2020.symbiote.security.services.helpers.IAnomaliesHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,6 +28,9 @@ public class DetectedAnomaliesService implements IAnomaliesHelper {
     private static Log log = LogFactory.getLog(DetectedAnomaliesService.class);
 
     private final BlockedActionsRepository blockedActionsRepository;
+
+    @Value("${anomaly.verbosity.level}")
+    private AnomalyDetectionVerbosityLevel anomalyDetectionVerbosityLevel;
 
     @Autowired
     public DetectedAnomaliesService(BlockedActionsRepository blockedActionsRepository) {
@@ -50,6 +56,10 @@ public class DetectedAnomaliesService implements IAnomaliesHelper {
         }
         return false;
 
+    }
+
+    public AnomalyDetectionVerbosityLevel getVerbosityLevel() {
+        return this.anomalyDetectionVerbosityLevel;
     }
 
 }
