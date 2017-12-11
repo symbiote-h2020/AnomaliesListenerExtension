@@ -4,6 +4,7 @@ package eu.h2020.symbiote.security.services;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import eu.h2020.symbiote.security.commons.enums.AnomalyDetectionVerbosityLevel;
 import eu.h2020.symbiote.security.commons.enums.EventType;
+import eu.h2020.symbiote.security.communication.payloads.EventLogRequest;
 import eu.h2020.symbiote.security.communication.payloads.HandleAnomalyRequest;
 import eu.h2020.symbiote.security.repositories.BlockedActionsRepository;
 import eu.h2020.symbiote.security.repositories.entities.BlockedAction;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 /**
@@ -60,6 +62,28 @@ public class DetectedAnomaliesService implements IAnomaliesHelper {
 
     public AnomalyDetectionVerbosityLevel getVerbosityLevel() {
         return this.anomalyDetectionVerbosityLevel;
+    }
+
+    public EventLogRequest prepareEventLogRequest(EventLogRequest eventLogRequest) throws IllegalAccessException {
+
+        if (!this.anomalyDetectionVerbosityLevel.getUsername())
+            eventLogRequest.setUsername(null);
+        if (!this.anomalyDetectionVerbosityLevel.getClientIdentifier())
+            eventLogRequest.setClientIdentifier(null);
+        if (!this.anomalyDetectionVerbosityLevel.getJti())
+            eventLogRequest.setJti(null);
+        if (!this.anomalyDetectionVerbosityLevel.getEventType())
+            eventLogRequest.setEventType(null);
+        if (!this.anomalyDetectionVerbosityLevel.getPlatformId())
+            eventLogRequest.setPlatformId(null);
+        if (!this.anomalyDetectionVerbosityLevel.getTimestamp())
+            eventLogRequest.setTimestamp(0);
+        if (!this.anomalyDetectionVerbosityLevel.getTokenString())
+            eventLogRequest.setTokenString(null);
+        if (!this.anomalyDetectionVerbosityLevel.getReason())
+            eventLogRequest.setReason(null);
+
+        return eventLogRequest;
     }
 
 }
