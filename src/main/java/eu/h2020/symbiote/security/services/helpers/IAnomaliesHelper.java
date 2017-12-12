@@ -1,7 +1,7 @@
 package eu.h2020.symbiote.security.services.helpers;
 
-import eu.h2020.symbiote.security.commons.enums.AnomalyDetectionVerbosityLevel;
 import eu.h2020.symbiote.security.commons.enums.EventType;
+import eu.h2020.symbiote.security.communication.payloads.AnomalyDetectionVerbosityLevel;
 import eu.h2020.symbiote.security.communication.payloads.EventLogRequest;
 import eu.h2020.symbiote.security.communication.payloads.HandleAnomalyRequest;
 
@@ -38,6 +38,7 @@ public interface IAnomaliesHelper {
 
     /**
      * Return abuse request and take into account defined verbosity level
+     *
      * @param eventLogRequest full request to be modified due to verbosity level
      * @return modified eventLogRequest
      * @throws IllegalAccessException

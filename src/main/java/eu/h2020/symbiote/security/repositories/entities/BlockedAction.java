@@ -2,10 +2,13 @@ package eu.h2020.symbiote.security.repositories.entities;
 
 import eu.h2020.symbiote.security.commons.enums.EventType;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
+
+@Document
 public class BlockedAction {
 
-    @Id
     private final String username;
     private final EventType eventType;
     private final long timeout;
@@ -34,4 +37,5 @@ public class BlockedAction {
     public EventType getEventType() {
         return eventType;
     }
+
 }
