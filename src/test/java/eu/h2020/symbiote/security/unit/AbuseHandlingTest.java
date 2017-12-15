@@ -2,6 +2,7 @@ package eu.h2020.symbiote.security.unit;
 
 import eu.h2020.symbiote.security.AnomaliesListenerExtensionApplicationTests;
 import eu.h2020.symbiote.security.commons.enums.EventType;
+import eu.h2020.symbiote.security.commons.enums.AnomalyDetectionVerbosityLevel;
 import eu.h2020.symbiote.security.communication.payloads.HandleAnomalyRequest;
 import eu.h2020.symbiote.security.repositories.entities.BlockedAction;
 import eu.h2020.symbiote.security.services.DetectedAnomaliesService;
@@ -93,7 +94,7 @@ public class AbuseHandlingTest extends AnomaliesListenerExtensionApplicationTest
 
         assert detectedAnomaliesService.isBlocked(username, EventType.VALIDATION_FAILED);
         assert !detectedAnomaliesService.isBlocked(username, EventType.LOGIN_FAILED);
-        //assert detectedAnomaliesService.getVerbosityLevel() == null;
+        assert detectedAnomaliesService.getVerbosityLevel() == AnomalyDetectionVerbosityLevel.FULL;
 
     }
 

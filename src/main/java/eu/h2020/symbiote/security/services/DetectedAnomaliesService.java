@@ -1,7 +1,7 @@
 
 package eu.h2020.symbiote.security.services;
 
-import eu.h2020.symbiote.security.communication.payloads.AnomalyDetectionVerbosityLevel;
+import eu.h2020.symbiote.security.commons.enums.AnomalyDetectionVerbosityLevel;
 import eu.h2020.symbiote.security.commons.enums.EventType;
 import eu.h2020.symbiote.security.communication.payloads.EventLogRequest;
 import eu.h2020.symbiote.security.communication.payloads.HandleAnomalyRequest;
@@ -12,7 +12,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,31 +26,12 @@ public class DetectedAnomaliesService implements IAnomaliesHelper {
 
     private final BlockedActionsRepository blockedActionsRepository;
 
-    @Value("${anomaly.verbosity.username}")
-    private Boolean usernameEnabled;
-    @Value("${anomaly.verbosity.clientIdentifier}")
-    private Boolean clientIdentifierEnabled;
-    @Value("${anomaly.verbosity.jti}")
-    private Boolean jtiEnabled;
-    @Value("${anomaly.verbosity.platformId}")
-    private Boolean platformIdEnabled;
-    @Value("${anomaly.verbosity.eventType}")
-    private Boolean eventTypeEnabled;
-    @Value("${anomaly.verbosity.timestamp}")
-    private Boolean timestampEnabled;
-    @Value("${anomaly.verbosity.tokenString}")
-    private Boolean tokenStringEnabled;
-    @Value("${anomaly.verbosity.reason}")
-    private Boolean reasonEnabled;
-
-
-    public AnomalyDetectionVerbosityLevel anomalyDetectionVerbosityLevel;
+    @Value("${anomaly.verbosity.level}")
+    private AnomalyDetectionVerbosityLevel anomalyDetectionVerbosityLevel;
 
     @Autowired
     public DetectedAnomaliesService(BlockedActionsRepository blockedActionsRepository) {
         this.blockedActionsRepository = blockedActionsRepository;
-        anomalyDetectionVerbosityLevel = new AnomalyDetectionVerbosityLevel(usernameEnabled, clientIdentifierEnabled,
-                jtiEnabled, platformIdEnabled, eventTypeEnabled, timestampEnabled, tokenStringEnabled, reasonEnabled);
     }
 
     public Boolean insertBlockedActionEntry(HandleAnomalyRequest handleAnomalyRequest) {
@@ -81,23 +61,18 @@ public class DetectedAnomaliesService implements IAnomaliesHelper {
 
     public EventLogRequest prepareEventLogRequest(EventLogRequest eventLogRequest) throws IllegalAccessException {
 
-        if (!this.anomalyDetectionVerbosityLevel.getUsername())
-            eventLogRequest.setUsername(null);
-        if (!this.anomalyDetectionVerbosityLevel.getClientIdentifier())
-            eventLogRequest.setClientIdentifier(null);
-        if (!this.anomalyDetectionVerbosityLevel.getJti())
-            eventLogRequest.setJti(null);
-        if (!this.anomalyDetectionVerbosityLevel.getEventType())
-            eventLogRequest.setEventType(null);
-        if (!this.anomalyDetectionVerbosityLevel.getPlatformId())
-            eventLogRequest.setPlatformId(null);
-        if (!this.anomalyDetectionVerbosityLevel.getTimestamp())
-            eventLogRequest.setTimestamp(0);
-        if (!this.anomalyDetectionVerbosityLevel.getTokenString())
-            eventLogRequest.setTokenString(null);
-        if (!this.anomalyDetectionVerbosityLevel.getReason())
-            eventLogRequest.setReason(null);
-
+        switch (this.anomalyDetectionVerbosityLevel) {
+            case FULL:
+                break;
+            case LIMITED:
+                eventLogRequest.setTokenString(null);
+                eventLogRequest.setReason(null);
+                break;
+            case DISABLED:
+                return new EventLogRequest();
+            default:
+                break;
+        }
         return eventLogRequest;
     }
 
