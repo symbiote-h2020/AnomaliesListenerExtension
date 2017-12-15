@@ -36,12 +36,29 @@ public class AnomalyController implements IAnomalyHandler {
             @ApiResponse(code = 500, message = "Anomaly reporting failed")})
     public ResponseEntity<String> handle(
             @RequestBody
-            @ApiParam(name = "Anomaly handle request", value = "Information needed to block operation that caused anomaly", required = true) HandleAnomalyRequest handleAnomalyRequest) {
+            @ApiParam(name = "Anomaly handle request", value = "Information needed to block operations that caused anomaly", required = true) HandleAnomalyRequest handleAnomalyRequest) {
 
         if (detectedAnomaliesService.insertBlockedActionEntry(handleAnomalyRequest))
             return ResponseEntity.status(HttpStatus.OK).body("");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("");
 
     }
+
+    @Override
+    @ApiOperation(value = "Allow to handle anomaly suspicious user")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Notification success"),
+            @ApiResponse(code = 500, message = "Notification failed")})
+    public ResponseEntity<String> handleSuspiciousActor(
+            @RequestBody
+            @ApiParam(name = "Anomaly handle request", value = "Information about operations that caused anomaly", required = true) HandleAnomalyRequest handleAnomalyRequest) {
+
+        if (detectedAnomaliesService.insertBlockedActionEntry(handleAnomalyRequest))
+            return ResponseEntity.status(HttpStatus.OK).body("");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("");
+
+    }
+
+
 
 }

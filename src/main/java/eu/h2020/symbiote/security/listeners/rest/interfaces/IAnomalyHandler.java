@@ -14,12 +14,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface IAnomalyHandler {
 
     /**
-     * Exposes services that allow detected anomaly handling.
      *
      * @param handleAnomalyRequest required to report anomaly.
      * @return ResponseEntity<String> where as header HTTP status is sent and in body true/false.
      */
     @PostMapping(value = SecurityConstants.ANOMALY_DETECTION_MESSAGE, consumes = "application/json")
     ResponseEntity<String> handle(@RequestBody HandleAnomalyRequest handleAnomalyRequest);
+
+    @PostMapping(value = SecurityConstants.ANOMALY_SOURCE_AAM_NOTIFICATION, consumes = "application/json")
+    ResponseEntity<String> handleSuspiciousActor(@RequestBody HandleAnomalyRequest handleAnomalyRequest);
 
 }
