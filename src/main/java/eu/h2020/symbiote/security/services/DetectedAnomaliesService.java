@@ -5,14 +5,16 @@ import eu.h2020.symbiote.security.commons.enums.AnomalyDetectionVerbosityLevel;
 import eu.h2020.symbiote.security.commons.enums.EventType;
 import eu.h2020.symbiote.security.communication.payloads.EventLogRequest;
 import eu.h2020.symbiote.security.communication.payloads.HandleAnomalyRequest;
+import eu.h2020.symbiote.security.handler.IAnomalyListenerSecurity;
 import eu.h2020.symbiote.security.repositories.BlockedActionsRepository;
 import eu.h2020.symbiote.security.repositories.entities.BlockedAction;
-import eu.h2020.symbiote.security.services.helpers.IAnomaliesHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+import static eu.h2020.symbiote.security.helpers.CryptoHelper.illegalSign;
 
 /**
  * Spring service used to provide support for detected anomalies handling.
@@ -21,8 +23,7 @@ import org.springframework.stereotype.Service;
  */
 
 @Service
-public class DetectedAnomaliesService implements IAnomaliesHelper {
-    private static Log log = LogFactory.getLog(DetectedAnomaliesService.class);
+public class DetectedAnomaliesService implements IAnomalyListenerSecurity {
 
     private final BlockedActionsRepository blockedActionsRepository;
 
@@ -34,24 +35,53 @@ public class DetectedAnomaliesService implements IAnomaliesHelper {
         this.blockedActionsRepository = blockedActionsRepository;
     }
 
-    public Boolean insertBlockedActionEntry(HandleAnomalyRequest handleAnomalyRequest) {
+    public boolean insertBlockedActionEntry(HandleAnomalyRequest handleAnomalyRequest) {
 
         long timeout = handleAnomalyRequest.getTimestamp() + handleAnomalyRequest.getDuration();
-        String username = handleAnomalyRequest.getUsername();
+        String anomalyIdentifier = handleAnomalyRequest.getAnomalyIdentifier();
         EventType eventType = handleAnomalyRequest.getEventType();
-        BlockedAction blockedAction = blockedActionsRepository.findBlockedActionByUsernameAndEventType(username, eventType);
+        BlockedAction blockedAction = blockedActionsRepository.findBlockedActionByIdentifierAndEventType(anomalyIdentifier, eventType);
         if (blockedAction != null) {
             if (timeout > blockedAction.getTimeout())
-                blockedActionsRepository.deleteBlockedActionByUsernameAndEventType(username, eventType);
+                blockedActionsRepository.deleteBlockedActionByIdentifierAndEventType(anomalyIdentifier, eventType);
             else
                 return true;
         }
-        return blockedActionsRepository.insert(new BlockedAction(username, eventType, timeout, handleAnomalyRequest.getDuration())) != null;
+        return blockedActionsRepository.insert(new BlockedAction(anomalyIdentifier, eventType, timeout, handleAnomalyRequest.getDuration())) != null;
     }
 
-    public Boolean isBlocked(String username, EventType eventType) {
+    public boolean isBlocked(Optional<String> username, Optional<String> clientId, Optional<String> jti, Optional<String> componentId, Optional<String> platformId, EventType eventType) {
 
-        BlockedAction blockedAction = blockedActionsRepository.findBlockedActionByUsernameAndEventType(username, eventType);
+        String identifier = "";
+        switch (eventType) {
+            case VALIDATION_FAILED:
+                if (!jti.isPresent()) {
+                    throw new IllegalArgumentException();
+                }
+                identifier = jti.get();
+                break;
+            case LOGIN_FAILED:
+                if (!username.isPresent()) {
+                    throw new IllegalArgumentException();
+                }
+                identifier = username.get();
+                break;
+            case ACQUISITION_FAILED:
+                if (username.isPresent() &&
+                        clientId.isPresent()) {
+                    identifier = username.get() + illegalSign + clientId.get();
+                    break;
+                }
+                if (componentId.isPresent() &&
+                        platformId.isPresent()) {
+                    identifier = platformId.get() + illegalSign + componentId.get();
+                    break;
+                }
+                throw new IllegalArgumentException();
+            case NULL:
+                throw new IllegalArgumentException();
+        }
+        BlockedAction blockedAction = blockedActionsRepository.findBlockedActionByIdentifierAndEventType(identifier, eventType);
         return blockedAction != null && blockedAction.getTimeout() > System.currentTimeMillis();
     }
 
@@ -59,7 +89,7 @@ public class DetectedAnomaliesService implements IAnomaliesHelper {
         return this.anomalyDetectionVerbosityLevel;
     }
 
-    public EventLogRequest prepareEventLogRequest(EventLogRequest eventLogRequest) throws IllegalAccessException {
+    public EventLogRequest prepareEventLogRequest(EventLogRequest eventLogRequest) {
 
         switch (this.anomalyDetectionVerbosityLevel) {
             case FULL:
@@ -74,6 +104,15 @@ public class DetectedAnomaliesService implements IAnomaliesHelper {
                 break;
         }
         return eventLogRequest;
+    }
+
+    public boolean clearBlockedActions() {
+        try {
+            blockedActionsRepository.deleteAll();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }

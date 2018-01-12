@@ -4,8 +4,6 @@ import eu.h2020.symbiote.security.communication.payloads.HandleAnomalyRequest;
 import eu.h2020.symbiote.security.listeners.rest.interfaces.IAnomalyHandler;
 import eu.h2020.symbiote.security.services.DetectedAnomaliesService;
 import io.swagger.annotations.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
  * Spring controller to handle HTTPS requests related to the RESTful web services associated with handling detected anomalies.
  *
  * @author Piotr Jakubowski (PSNC)
+ * @author Jakub Toczek (PSNC)
  */
 @Api(value = "/docs/handleAnomaly", description = "Exposes services that allow detected anomaly handling")
 @RestController
 public class AnomalyController implements IAnomalyHandler {
 
     private final DetectedAnomaliesService detectedAnomaliesService;
-    private Log log = LogFactory.getLog(AnomalyController.class);
 
     @Autowired
     public AnomalyController(DetectedAnomaliesService detectedAnomaliesService) {

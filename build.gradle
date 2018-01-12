@@ -1,7 +1,7 @@
 buildscript {
 	ext {
 		springBootVersion = '1.5.8.RELEASE'
-        swaggerAnnotationsVersion = '1.5.16'
+		swaggerAnnotationsVersion = '1.5.16'
 	}
 	repositories {
 		mavenCentral()
@@ -30,8 +30,15 @@ dependencies {
 
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile('org.springframework.boot:spring-boot-starter-data-mongodb')
-
-    compile("io.swagger:swagger-annotations:${swaggerAnnotationsVersion}")
-
+	compile('org.springframework.cloud:spring-cloud-starter-eureka')
+	compile('org.springframework.cloud:spring-cloud-starter-zipkin')
+	// Swagger annotations for documentation
+	compile("io.swagger:swagger-annotations:${swaggerAnnotationsVersion}")
 	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testCompile('com.github.fakemongo:fongo:2.1+')
+}
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
 }
