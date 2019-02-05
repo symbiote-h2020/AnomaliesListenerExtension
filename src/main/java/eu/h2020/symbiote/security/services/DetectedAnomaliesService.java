@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static eu.h2020.symbiote.security.helpers.CryptoHelper.illegalSign;
+import static eu.h2020.symbiote.security.helpers.CryptoHelper.FIELDS_DELIMITER;
 
 /**
  * Spring service used to provide support for detected anomalies handling.
@@ -69,12 +69,12 @@ public class DetectedAnomaliesService implements IAnomalyListenerSecurity {
             case ACQUISITION_FAILED:
                 if (username.isPresent() &&
                         clientId.isPresent()) {
-                    identifier = username.get() + illegalSign + clientId.get();
+                    identifier = username.get() + FIELDS_DELIMITER + clientId.get();
                     break;
                 }
                 if (componentId.isPresent() &&
                         platformId.isPresent()) {
-                    identifier = platformId.get() + illegalSign + componentId.get();
+                    identifier = platformId.get() + FIELDS_DELIMITER + componentId.get();
                     break;
                 }
                 throw new IllegalArgumentException();
